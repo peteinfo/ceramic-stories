@@ -1,6 +1,6 @@
 /***************************************************
-  POTTERY SOUNDS
-  RFID Player
+  CERAMIC SOUNDS
+  RFID triggerd mp3 Player
 
   Note: This code is glued together from the following two resources:
   1) Music Maker Shield: https://learn.adafruit.com/adafruit-music-maker-shield-vs1053-mp3-wav-wave-ogg-vorbis-player/overview
@@ -43,6 +43,15 @@ const int kTags = 4;
 
 // this stores the value of which tag is spotted in the knownTags array below
 int tagDetected = -1;
+
+// this reads the RFID reader's "tag in range" pin
+bool tagInRange = 0;
+bool tagInRangeLast = 0;
+float ramp = 0;
+float fadeInSpeed = 10;
+float fadeOutSpeed = 5;
+float volume = 200;
+
 
 // Put your known tags here!
 char knownTags[kTags][idLen] = {
@@ -90,7 +99,7 @@ void setup() {
   Serial.begin(9600);
   rSerial.begin(9600);
   Serial.println("--------------------------------");
-  Serial.println("Sustainable Ceramics Player v0.1");
+  Serial.println("      Ceramics Player v0.1      ");
   Serial.println("--------------------------------");
 
   if (! musicPlayer.begin()) { // initialise the music player
@@ -111,7 +120,7 @@ void setup() {
   printDirectory(SD.open("/"), 0);
 
   // Set volume for left, right channels. lower numbers == louder volume!
-  musicPlayer.setVolume(20, 20);
+  musicPlayer.setVolume(200, 200);
 
   // Timer interrupts are not suggested, better to use DREQ interrupt!
   //musicPlayer.useInterrupt(VS1053_FILEPLAYER_TIMER0_INT); // timer int
@@ -130,15 +139,46 @@ void setup() {
 
 void loop() {
 
+  // update last
+  tagInRangeLast = tagInRange;
+
+  // check if there is a tag in range
+  tagInRange = digitalRead(5);
+  //Serial.println(tagInRange); // debugging
+
+  //   0 = loudest
+  // 200 = suitably quiet
+
+  if (tagInRange > tagInRangeLast) {
+    // then a tags just been seen so fade in
+    ramp = -fadeInSpeed;
+
+  } else if ( tagInRange < tagInRangeLast) {
+    // tag has gone out of range so fade out
+    ramp = fadeOutSpeed;
+  }
+
+  volume = volume + ramp;
+
+  if ((volume <= 0) && (ramp != 0)) {
+    // fully faded in
+    volume = 0;
+    ramp = 0;
+  } else if ((volume >= 200 ) && (ramp != 0)) {
+    // fully faded out so stop playing
+    volume = 200;
+    ramp = 0;
+    musicPlayer.stopPlaying();
+    Serial.println("--stopped playing--");
+  }
+
+  //Serial.println(volume); // debugging
+
+  musicPlayer.setVolume(volume, volume);
+
+
   updateRFID();
 
-  // File is playing in the background
-  //  if (musicPlayer.stopped()) {
-  //    Serial.println("Done playing music");
-  //    while (1) {
-  //      delay(10);  // we're done! do nothing...
-  //    }
-  //  }
   if (Serial.available()) {
     char c = Serial.read();
 
@@ -159,7 +199,7 @@ void loop() {
     }
   }
 
-  delay(100);
+  delay(50);
 }
 
 
@@ -251,13 +291,12 @@ void updateRFID() {
     // we checked against, total will be 1
     if (total > 0) {
 
-      // Put the action of your choice here!
-
-      // I'm going to rotate the servo to symbolize unlocking the lockbox
+      // first stop playing music
+      musicPlayer.stopPlaying();
 
       Serial.print("RFID read = ");
-      Serial.print(newTag);
-      Serial.print(" ... track number = ");
+      Serial.println(newTag);
+      Serial.print("Track number = ");
       Serial.println(tagDetected);
 
       Serial.print(F("Playing track "));
