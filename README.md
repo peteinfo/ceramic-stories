@@ -1,2 +1,2 @@
-# ceramicstories
+# ceramic stories
 RFID enabled tableware
