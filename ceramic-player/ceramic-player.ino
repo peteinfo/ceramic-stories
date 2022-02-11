@@ -52,13 +52,17 @@ float fadeInSpeed = 10;
 float fadeOutSpeed = 5;
 float volume = 200;
 
+// -------------------------
+// ---------- AMY ----------
+// -------------------------
 
-// Put your known tags here!
+// Put your known tags here! 
+// Leave the first one as "000000000000"
 char knownTags[kTags][idLen] = {
-  "000000000000",
-  "6C00730A0B1E",
-  "7200777B601E",
-  "4D004A9874EB"
+  "000000000000", // don't delete this line
+  "6C0072EF8A7B", // tag 1
+  "6C0072EEBD4D", // tag 2
+  "6C00730A0B1E"  // tag 3
 };
 
 // Empty array to hold a freshly scanned tag
