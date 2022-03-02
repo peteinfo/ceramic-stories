@@ -52,11 +52,16 @@ float fadeInSpeed = 10;
 float fadeOutSpeed = 5;
 float volume = 200;
 
+// variables for the player
+int track1_count = 1;
+int track2_count = 1;
+int track3_count = 1;
+
 // -------------------------
 // ---------- AMY ----------
 // -------------------------
 
-// Put your known tags here! 
+// Put your known tags here!
 // Leave the first one as "000000000000"
 char knownTags[kTags][idLen] = {
   "000000000000", // don't delete this line
@@ -306,8 +311,68 @@ void updateRFID() {
       Serial.print(F("Playing track "));
       Serial.println(tagDetected);
 
-      char trackToPlay[40];
-      sprintf(trackToPlay, "/track%03d.mp3", tagDetected);
+      char trackToPlay[41];
+
+      // ---------------
+      //     TAG 1
+      // ---------------
+      if (tagDetected == 1) {
+        if (track1_count == 1) {
+         strncpy(trackToPlay, "/track01a.mp3", 40);
+        }
+        if (track1_count == 2) {
+         strncpy(trackToPlay, "/track01b.mp3", 40);
+        }
+        if (track1_count == 3) {
+         strncpy(trackToPlay, "/track01c.mp3", 40);
+        }
+        track1_count++;
+        if (track1_count > 3) {
+          track1_count = 1;
+        }
+      }
+
+
+      // ---------------
+      //     TAG 2
+      // ---------------
+      if (tagDetected == 2) {
+        if (track2_count == 1) {
+         strncpy(trackToPlay, "/track02a.mp3", 40);
+        }
+        if (track2_count == 2) {
+         strncpy(trackToPlay, "/track02b.mp3", 40);
+        }
+        if (track2_count == 3) {
+         strncpy(trackToPlay, "/track02c.mp3", 40);
+        }
+        track2_count++;
+        if (track2_count > 3) {
+          track2_count = 1;
+        }
+      }
+
+      
+      // ---------------
+      //     TAG 3
+      // ---------------
+      if (tagDetected == 3) {
+        if (track3_count == 1) {
+         strncpy(trackToPlay, "/track03a.mp3", 40);
+        }
+        if (track3_count == 2) {
+         strncpy(trackToPlay, "/track03b.mp3", 40);
+        }
+        if (track3_count == 3) {
+         strncpy(trackToPlay, "/track03c.mp3", 40);
+        }
+        track3_count++;
+        if (track3_count > 3) {
+          track3_count = 1;
+        }
+      }
+
+      //sprintf(trackToPlay, "/track%03d.mp3", tagDetected);
       Serial.print("playing file: ");
       Serial.println(trackToPlay);
 
